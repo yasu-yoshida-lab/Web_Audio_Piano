@@ -1,7 +1,6 @@
 ﻿// 変数宣言
-const path = "./audio/"             // オーディオファイルのパス
 const keyMap = [
-    { pcKey: "a", pianoKey: 0 },{ pcKey: "w", pianoKey: 1 },{ pcKey: "s", pianoKey: 2 },{ pcKey: "e", pianoKey: 3 },{ pcKey: "d", pianoKey: 4 },{ pcKey: "f", pianoKey: 5 },{ pcKey: "r", pianoKey: 6 },{ pcKey: "j", pianoKey: 7 },{ pcKey: "i", pianoKey: 8 },{ pcKey: "k", pianoKey: 9 },{ pcKey: "o", pianoKey: 10 },{ pcKey: "l", pianoKey: 11 },
+    { pcKey: "a", pianoKey: 0 },{ pcKey: "w", pianoKey: 1 },{ pcKey: "s", pianoKey: 2 },{ pcKey: "e", pianoKey: 3 },{ pcKey: "d", pianoKey: 4 },{ pcKey: "f", pianoKey: 5 },{ pcKey: "u", pianoKey: 6 },{ pcKey: "j", pianoKey: 7 },{ pcKey: "i", pianoKey: 8 },{ pcKey: "k", pianoKey: 9 },{ pcKey: "o", pianoKey: 10 },{ pcKey: "l", pianoKey: 11 },
 ]                                   // PCキーとピアノ鍵盤番号の紐づけ
 const pianoSounds = []              // Audioオブジェクト        
 const touchKeyNumlist = []          // タッチ中の鍵盤番号リスト
@@ -9,18 +8,15 @@ let clickedKeyNum = null            // クリック中の鍵盤番号リスト
 const isKeyPressing = new Array(30) // ピアノ鍵盤ごとの押下状態
 isKeyPressing.fill(false)           // 初期値 = false            
 const intervalIds = new Array(30)   // 各オーディオフェードアウトのインターバルID
-intervalIds.fill(null)              // 初期値 = null           
+intervalIds.fill(null)              // 初期値 = null
 const pianoWrap = document.getElementById("piano-wrap")     // 鍵盤全体
 const whiteKeys = document.querySelectorAll(".white-key")   // 白鍵
 const blackKeys = document.querySelectorAll(".black-key")   // 黒鍵
+const audioctx = new AudioContext();
+let oscillator = null;
+let gain = null;
 
-// 初期処理
-// Audioオブジェクトを作成セット
-for ( i = 0; i <= 29; i++ ){
-    let sound = new Audio( path + i + ".mp3" )
-    sound.volume = 0
-    pianoSounds.push(sound)
-}
+
 // タッチ対応判定
 if (window.ontouchstart === null) {
     // タッチ対応：タッチイベントのリスナーをセット
@@ -177,26 +173,29 @@ function releasePianoKey(keyNum){
 // オーディオ再生
 function soundPlay(soundNum){
     clearInterval( intervalIds[soundNum] )
-    intervalIds[soundNum] = null
-    pianoSounds[soundNum].volume = 1
-    pianoSounds[soundNum].currentTime = 0
-    pianoSounds[soundNum].play()
+    if(oscillator == null) {
+        oscillator = audioctx.createOscillator();
+        gain = new GainNode(audioctx);
+        oscillator.type = "sine";
+        gain.gain.volume = 0.5;
+        oscillator.frequency.setValueAtTime(440, audioctx.currentTime);
+        oscillator.connect(gain).connect(audioctx.destination);
+        oscillator.start();
+    }
 }
 
 // オーディオ停止(フェードアウト)
-function soundStop(soundNum){       
+function soundStop(soundNum){  
     // 20msごとに音量を下げる
     intervalIds[soundNum] = setInterval( function(){
-        if ( pianoSounds[soundNum].volume <= 0.05 ){
+        if ( gain.gain.volume <= 0.05 && oscillator ){
             // 音量が0.05以下の場合、Interval停止・オーディオ停止
-            clearInterval( intervalIds[soundNum] )
-            intervalIds[soundNum] = null
-            pianoSounds[soundNum].volume = 0
-            pianoSounds[soundNum].pause()
-            pianoSounds[soundNum].currentTime = 0
+            oscillator.stop(1);
+            oscillator = null;   
         } else {
             // 音量が0.05より大きい場合、音量を0.05下げる
-            pianoSounds[soundNum].volume -= 0.05
+            gain.gain.volume -= 0.05
         }
+        console.log(gain.gain.volume);
     }, 20 )
 }
