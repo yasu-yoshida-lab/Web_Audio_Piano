@@ -186,16 +186,9 @@ function soundPlay(soundNum){
 
 // オーディオ停止(フェードアウト)
 function soundStop(soundNum){  
-    // 20msごとに音量を下げる
-    intervalIds[soundNum] = setInterval( function(){
-        if ( gain.gain.volume <= 0.05 && oscillator ){
-            // 音量が0.05以下の場合、Interval停止・オーディオ停止
-            oscillator.stop(1);
-            oscillator = null;   
-        } else {
-            // 音量が0.05より大きい場合、音量を0.05下げる
-            gain.gain.volume -= 0.05
-        }
-        console.log(gain.gain.volume);
-    }, 20 )
+    if (oscillator) { 
+        gain.gain.exponentialRampToValueAtTime(0.001, audioctx.currentTime + 0.5);
+        oscillator.stop(audioctx.currentTime + 0.5);
+        oscillator = null;
+    }
 }
