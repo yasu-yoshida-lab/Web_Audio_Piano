@@ -1,13 +1,26 @@
 ﻿// 変数宣言
 const keyMap = [
-    { pcKey: "a", pianoKey: 0 },{ pcKey: "w", pianoKey: 1 },{ pcKey: "s", pianoKey: 2 },{ pcKey: "e", pianoKey: 3 },{ pcKey: "d", pianoKey: 4 },{ pcKey: "f", pianoKey: 5 },{ pcKey: "u", pianoKey: 6 },{ pcKey: "j", pianoKey: 7 },{ pcKey: "i", pianoKey: 8 },{ pcKey: "k", pianoKey: 9 },{ pcKey: "o", pianoKey: 10 },{ pcKey: "l", pianoKey: 11 },
+    { pcKey: "a", pianoKey: 0 },
+    { pcKey: "w", pianoKey: 1 },
+    { pcKey: "s", pianoKey: 2 },
+    { pcKey: "e", pianoKey: 3 },
+    { pcKey: "d", pianoKey: 4 },
+    { pcKey: "f", pianoKey: 5 },
+    { pcKey: "u", pianoKey: 6 },
+    { pcKey: "j", pianoKey: 7 },
+    { pcKey: "i", pianoKey: 8 },
+    { pcKey: "k", pianoKey: 9 },
+    { pcKey: "o", pianoKey: 10 },
+    { pcKey: "l", pianoKey: 11 },
+    { pcKey: ";", pianoKey: 12 }
 ]                                   // PCキーとピアノ鍵盤番号の紐づけ
+
 const pianoSounds = []              // Audioオブジェクト        
 const touchKeyNumlist = []          // タッチ中の鍵盤番号リスト
 let clickedKeyNum = null            // クリック中の鍵盤番号リスト
-const isKeyPressing = new Array(30) // ピアノ鍵盤ごとの押下状態
+const isKeyPressing = new Array(12) // ピアノ鍵盤ごとの押下状態
 isKeyPressing.fill(false)           // 初期値 = false            
-const intervalIds = new Array(30)   // 各オーディオフェードアウトのインターバルID
+const intervalIds = new Array(12)   // 各オーディオフェードアウトのインターバルID
 intervalIds.fill(null)              // 初期値 = null
 const pianoWrap = document.getElementById("piano-wrap")     // 鍵盤全体
 const whiteKeys = document.querySelectorAll(".white-key")   // 白鍵
@@ -15,7 +28,21 @@ const blackKeys = document.querySelectorAll(".black-key")   // 黒鍵
 const audioctx = new AudioContext();
 let oscillator = null;
 let gain = null;
-
+let frequencies = [
+    261.63, // ド
+    277.18, // ド# (C#)
+    293.66, // レ
+    311.13, // レ# (D#)
+    329.63, // ミ
+    349.23, // ファ
+    369.99, // ファ# (F#)
+    392.00, // ソ
+    415.30, // ソ# (G#)
+    440.00, // ラ
+    466.16, // ラ# (A#)
+    493.88, // シ
+    523.25  // 1オクターブ上のC（ド）
+];
 
 // タッチ対応判定
 if (window.ontouchstart === null) {
@@ -178,7 +205,7 @@ function soundPlay(soundNum){
         gain = new GainNode(audioctx);
         oscillator.type = "sine";
         gain.gain.volume = 0.5;
-        oscillator.frequency.setValueAtTime(440, audioctx.currentTime);
+        oscillator.frequency.setValueAtTime(frequencies[soundNum], audioctx.currentTime);
         oscillator.connect(gain).connect(audioctx.destination);
         oscillator.start();
     }
