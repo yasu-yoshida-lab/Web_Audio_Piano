@@ -14,20 +14,23 @@ const keyMap = [
     { pcKey: "l", pianoKey: 11 },
     { pcKey: ";", pianoKey: 12 }
 ]                                   // PCキーとピアノ鍵盤番号の紐づけ
-
+const numkey = 20
 const pianoSounds = []              // Audioオブジェクト        
 const touchKeyNumlist = []          // タッチ中の鍵盤番号リスト
 let clickedKeyNum = null            // クリック中の鍵盤番号リスト
-const isKeyPressing = new Array(12) // ピアノ鍵盤ごとの押下状態
+const isKeyPressing = new Array(numkey) // ピアノ鍵盤ごとの押下状態
 isKeyPressing.fill(false)           // 初期値 = false            
-const intervalIds = new Array(12)   // 各オーディオフェードアウトのインターバルID
+const intervalIds = new Array(numkey)   // 各オーディオフェードアウトのインターバルID
 intervalIds.fill(null)              // 初期値 = null
 const pianoWrap = document.getElementById("piano-wrap")     // 鍵盤全体
 const whiteKeys = document.querySelectorAll(".white-key")   // 白鍵
 const blackKeys = document.querySelectorAll(".black-key")   // 黒鍵
-const audioctx = new AudioContext();
-let oscillator = null;
-let gain = null;
+const audioctxes = new Array(numkey);
+audioctxes.fill(null);
+const oscillators = new Array(numkey);
+oscillators.fill(null);
+const gains = new Array(numkey);
+gains.fill(null);
 let frequencies = [
     261.63, // ド
     277.18, // ド# (C#)
@@ -43,6 +46,10 @@ let frequencies = [
     493.88, // シ
     523.25  // 1オクターブ上のC（ド）
 ];
+
+for (let i = 0; i < numkey; i++) { 
+    audioctxes[i] = new AudioContext();
+}
 
 // タッチ対応判定
 if (window.ontouchstart === null) {
@@ -198,24 +205,24 @@ function releasePianoKey(keyNum){
 }
 
 // オーディオ再生
-function soundPlay(soundNum){
+function soundPlay(soundNum) {
     clearInterval( intervalIds[soundNum] )
-    if(oscillator == null) {
-        oscillator = audioctx.createOscillator();
-        gain = new GainNode(audioctx);
-        oscillator.type = "sine";
-        gain.gain.volume = 0.5;
-        oscillator.frequency.setValueAtTime(frequencies[soundNum], audioctx.currentTime);
-        oscillator.connect(gain).connect(audioctx.destination);
-        oscillator.start();
+    if(oscillators[soundNum] == null) {
+        oscillators[soundNum] = audioctxes[soundNum].createOscillator();
+        gains[soundNum] = new GainNode(audioctxes[soundNum]);
+        oscillators[soundNum].type = "sine";
+        gains[soundNum].gain.volume = 0.5;
+        oscillators[soundNum].frequency.setValueAtTime(frequencies[soundNum], audioctxes[soundNum].currentTime);
+        oscillators[soundNum].connect(gains[soundNum]).connect(audioctxes[soundNum].destination);
+        oscillators[soundNum].start();
     }
 }
 
 // オーディオ停止(フェードアウト)
-function soundStop(soundNum){  
-    if (oscillator) { 
-        gain.gain.exponentialRampToValueAtTime(0.001, audioctx.currentTime + 0.5);
-        oscillator.stop(audioctx.currentTime + 0.5);
-        oscillator = null;
+function soundStop(soundNum) {  
+    if (oscillators[soundNum]) { 
+        gains[soundNum].gain.exponentialRampToValueAtTime(0.001, audioctxes[soundNum].currentTime + 0.5);
+        oscillators[soundNum].stop(audioctxes[soundNum].currentTime + 0.5);
+        oscillators[soundNum] = null;
     }
 }
