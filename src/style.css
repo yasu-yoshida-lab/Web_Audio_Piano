@@ -1,11 +1,44 @@
-#piano-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto;
-    width: calc(100% - 40px);
-    height: 400px;
-    overflow: auto;
+/* スマートフォン（小さいデバイス）用 */
+@media (max-width: 400px) {
+    #piano-container {
+        display: flex;
+        justify-content: center;    
+        align-items: center;
+        margin: 0 auto;
+        width: calc(80% - 40px);
+        height: 400px;
+        overflow: auto;
+        font-size: 14px;
+        padding: 5px; /* 小さなデバイスでの視認性を考慮してパディングを減らす */
+    }
+}
+
+/* スマートフォン用 */
+@media (max-width: 600px) {
+    #piano-container {
+        display: flex;
+        justify-content: center;    
+        align-items: center;
+        margin: 0 auto;
+        width: calc(100% - 40px);
+        height: 400px;
+        overflow: auto;
+        font-size: 16px;
+    }
+}
+
+/* デスクトップ用 */
+@media (min-width: 801px) {
+    #piano-container {
+        display: flex;
+        justify-content: center;    
+        align-items: center;
+        margin: 0 auto;
+        width: calc(100% - 40px);
+        height: 400px;
+        overflow: auto;
+        font-size: 16px;
+    }
 }
 
 #piano-wrap * {            
@@ -26,16 +59,34 @@
     position: relative;
 }
 
-.white-key {
-    width: 46px;
-    height: 320px;
-    background-color: white;
-    border: solid 1px black;
-    z-index: 1;
-    border-bottom: solid rgb(230, 230, 230) 20px;
-    box-shadow: 0 7px 3px 0 rgba(0, 0, 0, 0.3);
-    transition: 100ms;
-    color: black;
+/* スマートフォン（小さいデバイス）用 */
+@media (max-width: 400px) {
+    .white-key {
+        width: 40px;
+        height: 320px;
+        background-color: white;
+        border: solid 1px black;
+        z-index: 1;
+        border-bottom: solid rgb(230, 230, 230) 20px;
+        box-shadow: 0 7px 3px 0 rgba(0, 0, 0, 0.3);
+        transition: 100ms;
+        color: black;
+    }    
+}
+
+/* デスクトップ用 */
+@media (min-width: 401px) {
+    .white-key {
+        width: 46px;
+        height: 320px;
+        background-color: white;
+        border: solid 1px black;
+        z-index: 1;
+        border-bottom: solid rgb(230, 230, 230) 20px;
+        box-shadow: 0 7px 3px 0 rgba(0, 0, 0, 0.3);
+        transition: 100ms;
+        color: black;
+    }    
 }
 
 .white-key.pressing {
