@@ -208,22 +208,26 @@ function releasePianoKey(keyNum){
 function soundPlay(soundNum) {
     clearInterval( intervalIds[soundNum] )
     if(oscillators[soundNum] == null) {
+        const start_time = audioctxes[soundNum].currentTime + 0.01; // 0.1秒後に停止予定
         oscillators[soundNum] = audioctxes[soundNum].createOscillator();
         gains[soundNum] = new GainNode(audioctxes[soundNum]);
         oscillators[soundNum].type = "sine";
-        gains[soundNum].gain.volume = 0.5;
+        gains[soundNum].gain.volume = 0.2;
         oscillators[soundNum].frequency.setValueAtTime(frequencies[soundNum], audioctxes[soundNum].currentTime);
+        gains[soundNum].gain.setValueAtTime(0, start_time - 0.01);
+        gains[soundNum].gain.linearRampToValueAtTime(gains[soundNum].gain.volume, start_time);
         oscillators[soundNum].connect(gains[soundNum]).connect(audioctxes[soundNum].destination);
-        oscillators[soundNum].start();
+        oscillators[soundNum].start(start_time);
     }
 }
 
 // オーディオ停止(フェードアウト)
 function soundStop(soundNum) {  
     if (oscillators[soundNum]) { 
-        oscillators[soundNum].stop(audioctxes[soundNum].currentTime + 1);
-        gains[soundNum].gain.setValueAtTime(1, audioctxes[soundNum].currentTime + 0.9);
-        gains[soundNum].gain.linearRampToValueAtTime(0, audioctxes[soundNum].currentTime + 1);
+        const stop_time = audioctxes[soundNum].currentTime + 0.1; // 0.1秒後に停止予定
+        gains[soundNum].gain.setValueAtTime(gains[soundNum].gain.volume , stop_time - 0.3);
+        gains[soundNum].gain.linearRampToValueAtTime(0, stop_time);
+        oscillators[soundNum].stop(stop_time + 0.1);
         oscillators[soundNum] = null;
     }
 }
