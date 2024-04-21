@@ -221,8 +221,9 @@ function soundPlay(soundNum) {
 // オーディオ停止(フェードアウト)
 function soundStop(soundNum) {  
     if (oscillators[soundNum]) { 
-        gains[soundNum].gain.exponentialRampToValueAtTime(0.001, audioctxes[soundNum].currentTime + 0.5);
-        oscillators[soundNum].stop(audioctxes[soundNum].currentTime + 0.5);
+        oscillators[soundNum].stop(audioctxes[soundNum].currentTime + 1);
+        gains[soundNum].gain.setValueAtTime(1, audioctxes[soundNum].currentTime + 0.9);
+        gains[soundNum].gain.linearRampToValueAtTime(0, audioctxes[soundNum].currentTime + 1);
         oscillators[soundNum] = null;
     }
 }
